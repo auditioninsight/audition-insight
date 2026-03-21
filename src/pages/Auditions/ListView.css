@@ -1,0 +1,137 @@
+.list-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  height: 100%;
+}
+
+.breadcrumbs {
+  margin-bottom: var(--space-2);
+}
+
+.breadcrumb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.breadcrumb-back:hover {
+  color: var(--accent-gold);
+}
+
+.list-header {
+  margin-bottom: var(--space-4);
+}
+
+.list-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-2);
+}
+
+.list-header p {
+  color: var(--text-secondary);
+}
+
+.grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.grid-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+}
+
+.grid-card h3 {
+  font-size: 1.125rem;
+  margin: 0 0 var(--space-1) 0;
+  font-family: var(--font-sans);
+}
+
+.card-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--accent-gold);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-meta {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.card-arrow {
+  color: var(--text-muted);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.grid-card:hover .card-arrow {
+  transform: translateX(4px);
+  color: var(--accent-gold);
+}
+
+.position-card-content {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.rating-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--accent-gold);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.star-icon {
+  margin-right: 2px;
+}
+
+.review-count {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: var(--space-1);
+}
