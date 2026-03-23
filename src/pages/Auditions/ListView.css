@@ -135,3 +135,25 @@
   font-weight: 400;
   margin-left: var(--space-1);
 }
+
+@media (max-width: 1024px) {
+  .grid-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-list {
+    grid-template-columns: 1fr;
+  }
+  .grid-card {
+    padding: var(--space-3) var(--space-4);
+  }
+  .grid-card h3 {
+    font-size: 1rem;
+  }
+  .card-icon {
+    width: 32px;
+    height: 32px;
+  }
+}

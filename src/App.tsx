@@ -21,6 +21,7 @@ import ReviewForm from './pages/Review/ReviewForm';
 import Overview from './pages/Statistics/Overview';
 import StatisticsOrchestrasList from './pages/Statistics/StatisticsOrchestrasList';
 import StatisticsInstrumentsList from './pages/Statistics/StatisticsInstrumentsList';
+import InstrumentStatisticsDetail from './pages/Statistics/InstrumentStatisticsDetail';
 
 import AdminPanel from './pages/Admin/AdminPanel';
 
@@ -67,6 +68,7 @@ const AppRoutes = () => {
         <Route path="/statistics" element={<Overview />} />
         <Route path="/statistics/:country" element={<StatisticsOrchestrasList />} />
         <Route path="/statistics/:country/:orchestra" element={<StatisticsInstrumentsList />} />
+        <Route path="/statistics/:country/:orchestra/:instrument" element={<InstrumentStatisticsDetail />} />
         
         {/* Admin Section */}
         <Route path="/verification" element={

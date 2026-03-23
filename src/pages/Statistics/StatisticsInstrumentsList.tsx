@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Music, Star, Users, ArrowLeft, Info } from 'lucide-react';
 import { dbMockReviews, getReviewOverallAverage } from '../../data/mockReviews';
 import '../Auditions/ListView.css'; 
 
 const StatisticsInstrumentsList: React.FC = () => {
   const { country, orchestra } = useParams<{ country: string, orchestra: string }>();
+  const navigate = useNavigate();
 
   const stats = useMemo(() => {
     if (!country || !orchestra) return null;
@@ -55,9 +56,9 @@ const StatisticsInstrumentsList: React.FC = () => {
   return (
     <div className="list-view-container animate-fade-in">
       <div className="breadcrumbs">
-        <Link to={`/statistics/${country}`} className="back-link">
+        <button onClick={() => navigate(`/statistics/${country}`)} className="back-link" style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)' }}>
           <ArrowLeft size={16} /> Back to {country && country.replace('-', ' ')} Orchestras
-        </Link>
+        </button>
       </div>
 
       <div className="list-header">
@@ -78,6 +79,7 @@ const StatisticsInstrumentsList: React.FC = () => {
         <div className="grid-list">
           {stats.instruments.map((inst) => (
             <div 
+              onClick={() => navigate(`/statistics/${country}/${orchestra}/${inst.name}`)}
               key={inst.name} 
               className="list-card glass-panel transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-xl cursor-pointer"
             >
@@ -91,10 +93,13 @@ const StatisticsInstrumentsList: React.FC = () => {
                 
                 <div className="card-text" style={{ width: '100%', marginTop: 'var(--space-4)' }}>
                   {/* Primary Metric: Experience Rating */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-4)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Star size={20} fill="#facc15" color="#facc15" /> 
                     <span style={{ fontSize: '1.4rem', fontWeight: 600, color: '#111827' }}>{inst.average.toFixed(1)}</span>
                     <span style={{ fontSize: '0.95rem', color: '#9ca3af', fontWeight: '500' }}>Experience rating</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', marginBottom: 'var(--space-4)', marginTop: '2px', marginLeft: '28px' }}>
+                    Click to know more
                   </div>
 
                   {/* Secondary Metric: Outcome Highlight */}

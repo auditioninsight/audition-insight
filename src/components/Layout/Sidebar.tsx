@@ -6,13 +6,15 @@ import './Sidebar.css';
 
 interface SidebarProps {
   onLogout: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onLogout, isOpen, onClose }) => {
   const { user } = useAuth();
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header" style={{ justifyContent: 'center' }}>
         <img src="/logo.png" alt="Audition Insight" className="sidebar-logo-image" />
       </div>
@@ -20,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
       <nav className="sidebar-nav">
         <NavLink 
           to="/auditions" 
+          onClick={onClose}
           className={({ isActive }) => `nav-link ${isActive || window.location.pathname === '/' ? 'active' : ''}`}
         >
           <Map className="nav-icon" size={20} />
@@ -28,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         
         <NavLink 
           to="/statistics" 
+          onClick={onClose}
           className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
         >
           <BarChart2 className="nav-icon" size={20} />
@@ -37,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         {user && user.role === 'admin' && (
           <NavLink 
             to="/verification" 
+            onClick={onClose}
             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
           >
             <Shield className="nav-icon" size={20} />

@@ -15,6 +15,8 @@ const ReviewForm: React.FC = () => {
     // Organization
     punctuality: 0,
     scheduleDistribution: 0,
+    invitationReceived: null as boolean | null,
+    invitationTiming: '',
     // Treatment
     respect: 0,
     atmosphere: 0,
@@ -167,6 +169,29 @@ const ReviewForm: React.FC = () => {
             <div className="form-label">Schedule Distribution</div>
             {renderStars('scheduleDistribution')}
           </div>
+          <div className="form-row">
+            <div className="form-label">Did you receive an invitation?</div>
+            {renderToggle('invitationReceived')}
+          </div>
+          {formData.invitationReceived && (
+            <div className="form-row nested-row animate-fade-in">
+              <div className="form-label text-muted">↳ When did you receive the invitation?</div>
+              <div className="select-wrapper">
+                <select 
+                  value={formData.invitationTiming} 
+                  onChange={(e) => handleSelect('invitationTiming', e.target.value)}
+                  required
+                >
+                  <option value="" disabled>Select Timing</option>
+                  <option value="More than one month before">More than one month before</option>
+                  <option value="About one month before">About one month before</option>
+                  <option value="Between 2 weeks and 1 month">Between 2 weeks and 1 month</option>
+                  <option value="Less than 2 weeks before">Less than 2 weeks before</option>
+                </select>
+                <ChevronDown className="select-icon" size={16} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Treatment */}

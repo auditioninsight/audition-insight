@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   min-height: 100px;
   background-color: transparent;
   border-bottom: none;
@@ -13,6 +13,8 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
 }
 
 .topbar-logo {
@@ -35,6 +37,15 @@
   background: none;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.hamburger-btn {
+  display: none;
+  margin-right: var(--space-4);
 }
 
 /* NOTIFICATION DOT */
@@ -73,4 +84,25 @@
 
 .user-role {
   color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    min-height: 60px;
+    padding: 0 var(--space-4);
+  }
+  .topbar-center {
+    position: static;
+    transform: none;
+    flex: 1;
+  }
+  .topbar-logo {
+    height: 50px; /* Reduced dramatically from 350px -> better fit for small screens */
+  }
+  .hamburger-btn {
+    display: flex;
+  }
+  .user-info {
+    display: none;
+  }
 }
