@@ -213,11 +213,11 @@ const ReviewForm: React.FC = () => {
                     required
                   >
                     <option value="" disabled>Select Timing</option>
-                    <option value="Immediately after audition">Immediately after audition</option>
-                    <option value="Same day">Same day</option>
-                    <option value="Within a few days">Within a few days</option>
-                    <option value="After a week or more">After a week or more</option>
-                    <option value="Not specified">Not specified</option>
+                    <option value="After first round">After first round</option>
+                    <option value="After second round">After second round</option>
+                    <option value="After third round">After third round</option>
+                    <option value="By email">By email</option>
+                    <option value="After the audition">After the audition</option>
                   </select>
                   <ChevronDown className="select-icon" size={16} />
                 </div>
