@@ -24,6 +24,7 @@ const ReviewForm: React.FC = () => {
     // Feedback
     feedbackGiven: null as boolean | null,
     feedbackQuality: 0,
+    feedbackTiming: '',
     // Logistics
     warmUpRoom: null as boolean | null,
     warmUpType: '',
@@ -202,10 +203,30 @@ const ReviewForm: React.FC = () => {
             {renderToggle('feedbackGiven')}
           </div>
           {formData.feedbackGiven && (
-            <div className="form-row nested-row animate-fade-in">
-              <div className="form-label text-muted">↳ Feedback Quality</div>
-              {renderStars('feedbackQuality')}
-            </div>
+            <>
+              <div className="form-row nested-row animate-fade-in">
+                <div className="form-label text-muted">↳ When was the feedback given?</div>
+                <div className="select-wrapper">
+                  <select 
+                    value={formData.feedbackTiming} 
+                    onChange={(e) => handleSelect('feedbackTiming', e.target.value)}
+                    required
+                  >
+                    <option value="" disabled>Select Timing</option>
+                    <option value="Immediately after audition">Immediately after audition</option>
+                    <option value="Same day">Same day</option>
+                    <option value="Within a few days">Within a few days</option>
+                    <option value="After a week or more">After a week or more</option>
+                    <option value="Not specified">Not specified</option>
+                  </select>
+                  <ChevronDown className="select-icon" size={16} />
+                </div>
+              </div>
+              <div className="form-row nested-row animate-fade-in">
+                <div className="form-label text-muted">↳ Feedback Quality</div>
+                {renderStars('feedbackQuality')}
+              </div>
+            </>
           )}
         </div>
 

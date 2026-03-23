@@ -26,6 +26,7 @@ export interface AuditionReview {
   logistics: {
     screenUsedTransparency: boolean;
     feedbackGiven: boolean;
+    feedbackTiming?: string;
     warmUpRoom: boolean;
     warmUpType: string;
     preStageRoom: boolean;
@@ -48,7 +49,7 @@ export const dbMockReviews: AuditionReview[] = [
   {
     id: 'rev_horn1', country: 'germany', orchestra_id: 'berliner-philharmoniker', instrument: 'Horn', position: 'Principal', createdAt: '2026-03-01T10:00:00Z', status: 'approved', proofImage: 'berlin-phil-horn1.pdf', fileType: 'pdf', outcome: 'yes',
     ratings: { punctuality: 5, scheduleDistribution: 5, respect: 4, atmosphere: 5, communicationOfResults: 5, feedbackQuality: 4 },
-    logistics: { screenUsedTransparency: true, feedbackGiven: true, warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: true, numberOfRounds: 3 }
+    logistics: { screenUsedTransparency: true, feedbackGiven: true, feedbackTiming: 'Same day', warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: true, numberOfRounds: 3 }
   },
   {
     id: 'rev_horn2', country: 'germany', orchestra_id: 'berliner-philharmoniker', instrument: 'Horn', position: 'Second', createdAt: '2026-03-05T12:00:00Z', status: 'approved', proofImage: 'berlin-phil-horn2.jpg', fileType: 'image', outcome: 'no',
@@ -58,7 +59,7 @@ export const dbMockReviews: AuditionReview[] = [
   {
     id: 'rev_horn3', country: 'united-kingdom', orchestra_id: 'london-symphony-orchestra', instrument: 'Horn', position: 'Tutti', createdAt: '2026-03-10T14:00:00Z', status: 'approved', proofImage: 'lso-horn.pdf', fileType: 'pdf', outcome: 'unknown',
     ratings: { punctuality: 5, scheduleDistribution: 4, respect: 5, atmosphere: 5, communicationOfResults: 4, feedbackQuality: 5 },
-    logistics: { screenUsedTransparency: false, feedbackGiven: true, warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: false, numberOfRounds: 3 }
+    logistics: { screenUsedTransparency: false, feedbackGiven: true, feedbackTiming: 'Immediately after audition', warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: false, numberOfRounds: 3 }
   },
   
   // --- VIOLIN ---
@@ -70,7 +71,7 @@ export const dbMockReviews: AuditionReview[] = [
   {
     id: 'rev_vln2', country: 'spain', orchestra_id: 'orquesta-nacional-de-espana', instrument: 'Violin', position: 'Co-Principal', createdAt: '2026-02-16T11:00:00Z', status: 'approved', proofImage: 'one-vln-prin.jpg', fileType: 'image', outcome: 'no',
     ratings: { punctuality: 4, scheduleDistribution: 4, respect: 4, atmosphere: 4, communicationOfResults: 3, feedbackQuality: 4 },
-    logistics: { screenUsedTransparency: false, feedbackGiven: true, warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: false, numberOfRounds: 3 }
+    logistics: { screenUsedTransparency: false, feedbackGiven: true, feedbackTiming: 'Within a few days', warmUpRoom: true, warmUpType: 'individual', preStageRoom: true, called10MinBefore: true, screenUsedLogistics: false, numberOfRounds: 3 }
   },
   {
     id: 'rev_vln3', country: 'austria', orchestra_id: 'wiener-philharmoniker', instrument: 'Violin', position: 'Tutti Section', createdAt: '2026-01-20T10:00:00Z', status: 'pending', proofImage: 'wphil-vln-pending.pdf', fileType: 'pdf', outcome: 'unknown',
