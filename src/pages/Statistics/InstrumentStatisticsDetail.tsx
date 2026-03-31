@@ -234,7 +234,7 @@ const InstrumentStatisticsDetail: React.FC = () => {
               <span style={{ fontSize: '2.5rem', fontWeight: 700, lineHeight: 1 }}>{stats.average?.toFixed(1) || '0.0'}</span>
               <div style={{ display: 'flex', color: 'var(--accent-gold)' }}>
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} size={20} fill={stats.average >= i ? 'currentColor' : 'none'} color="currentColor" />
+                  <Star key={i} size={20} fill={(stats.average ?? 0) >= i ? 'currentColor' : 'none'} color="currentColor" />
                 ))}
               </div>
             </div>
@@ -261,49 +261,49 @@ const InstrumentStatisticsDetail: React.FC = () => {
             {/* Organization */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Organization</h4>
-              {renderBar(stats.detailed.punctuality.sum, stats.count, 'Punctuality')}
-              {renderBar(stats.detailed.scheduleDistribution.sum, stats.count, 'Schedule Distribution')}
+              {renderBar(stats.detailed?.punctuality?.sum ?? 0, stats.count, 'Punctuality')}
+              {renderBar(stats.detailed?.scheduleDistribution?.sum ?? 0, stats.count, 'Schedule Distribution')}
               <div style={{ marginTop: 'var(--space-4)' }}>
-                {renderPercentageBar(stats.detailed.invitationReceived.yes, stats.detailed.invitationReceived.no, 'Invitation Rate')}
-                {renderBreakdown(stats.detailed.invitationTiming, 'Invitation Timing')}
+                {renderPercentageBar(stats.detailed?.invitationReceived?.yes ?? 0, stats.detailed?.invitationReceived?.no ?? 0, 'Invitation Rate')}
+                {renderBreakdown(stats.detailed?.invitationTiming ?? {}, 'Invitation Timing')}
               </div>
             </div>
 
             {/* Treatment */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Treatment</h4>
-              {renderBar(stats.detailed.respect.sum, stats.count, 'Respect')}
-              {renderBar(stats.detailed.atmosphere.sum, stats.count, 'Atmosphere')}
+              {renderBar(stats.detailed?.respect?.sum ?? 0, stats.count, 'Respect')}
+              {renderBar(stats.detailed?.atmosphere?.sum ?? 0, stats.count, 'Atmosphere')}
             </div>
 
             {/* Transparency */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Transparency</h4>
-              {renderBar(stats.detailed.communicationOfResults.sum, stats.count, 'Communication of Results')}
+              {renderBar(stats.detailed?.communicationOfResults?.sum ?? 0, stats.count, 'Communication of Results')}
               <div style={{ marginTop: 'var(--space-4)' }}>
-                {renderPercentageBar(stats.detailed.tr_screenUsed.yes, stats.detailed.tr_screenUsed.no, 'Blind Audition (Screen)')}
+                {renderPercentageBar(stats.detailed?.tr_screenUsed?.yes ?? 0, stats.detailed?.tr_screenUsed?.no ?? 0, 'Blind Audition (Screen)')}
               </div>
             </div>
 
             {/* Logistics */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Logistics</h4>
-              {renderPercentageBar(stats.detailed.warmUpRoom.yes, stats.detailed.warmUpRoom.no, 'Warm-up Room Provided')}
-              {renderBreakdown(stats.detailed.warmUpType, 'Warm-up Type')}
-              {renderPercentageBar(stats.detailed.preStageRoom.yes, stats.detailed.preStageRoom.no, 'Pre-stage Room')}
-              {renderPercentageBar(stats.detailed.called10MinBefore.yes, stats.detailed.called10MinBefore.no, 'Called 10 min before playing')}
-              {renderPercentageBar(stats.detailed.log_screenUsed.yes, stats.detailed.log_screenUsed.no, 'Screen Used (Logistics)')}
-              {renderAvgNumber(stats.detailed.numberOfRounds.sum, stats.count, 'Average Rounds')}
+              {renderPercentageBar(stats.detailed?.warmUpRoom?.yes ?? 0, stats.detailed?.warmUpRoom?.no ?? 0, 'Warm-up Room Provided')}
+              {renderBreakdown(stats.detailed?.warmUpType ?? {}, 'Warm-up Type')}
+              {renderPercentageBar(stats.detailed?.preStageRoom?.yes ?? 0, stats.detailed?.preStageRoom?.no ?? 0, 'Pre-stage Room')}
+              {renderPercentageBar(stats.detailed?.called10MinBefore?.yes ?? 0, stats.detailed?.called10MinBefore?.no ?? 0, 'Called 10 min before playing')}
+              {renderPercentageBar(stats.detailed?.log_screenUsed?.yes ?? 0, stats.detailed?.log_screenUsed?.no ?? 0, 'Screen Used (Logistics)')}
+              {renderAvgNumber(stats.detailed?.numberOfRounds?.sum ?? 0, stats.count, 'Average Rounds')}
             </div>
 
             {/* Feedback */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Feedback</h4>
-              {renderPercentageBar(stats.detailed.feedbackGiven.yes, stats.detailed.feedbackGiven.no, 'Feedback Given')}
-              {stats.detailed.feedbackGiven.yes > 0 && (
+              {renderPercentageBar(stats.detailed?.feedbackGiven?.yes ?? 0, stats.detailed?.feedbackGiven?.no ?? 0, 'Feedback Given')}
+              {(stats.detailed?.feedbackGiven?.yes ?? 0) > 0 && (
                 <div style={{ marginTop: 'var(--space-4)' }}>
-                  {renderBreakdown(stats.detailed.feedbackTiming, 'Feedback Timing')}
-                  {renderBar(stats.detailed.feedbackQuality.sum, stats.detailed.feedbackQuality.count, 'Feedback Quality')}
+                  {renderBreakdown(stats.detailed?.feedbackTiming ?? {}, 'Feedback Timing')}
+                  {renderBar(stats.detailed?.feedbackQuality?.sum ?? 0, stats.detailed?.feedbackQuality?.count ?? 0, 'Feedback Quality')}
                 </div>
               )}
             </div>
