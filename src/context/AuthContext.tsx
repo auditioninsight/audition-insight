@@ -56,11 +56,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        await fetchProfile(session.user);
-      } else {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Supabase Auth Error:", error.message);
+          throw error;
+        }
+
+        if (session?.user) {
+          await fetchProfile(session.user);
+        } else {
+          setUser(null);
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error("Failed to initialize session. Check if Vercel Environment Variables are set:", e);
         setUser(null);
         setLoading(false);
       }
