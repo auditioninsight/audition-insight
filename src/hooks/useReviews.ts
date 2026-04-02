@@ -34,6 +34,12 @@ export const useReviews = () => {
 
   // Method tailored for AdminPanel logic
   const updateReviewVerification = async (id: string, verified: boolean) => {
+    const targetReview = allReviews.find(r => r.id === id);
+    // If not found locally, we could theoretically still update, but we need the email for the notification
+    if (!targetReview) {
+      console.error('Review not found in local state, cannot generate notification.');
+    }
+
     const { error } = await supabase
       .from('reviews')
       .update({ verified })
@@ -43,6 +49,23 @@ export const useReviews = () => {
       console.error('Error updating review status:', error);
       return false;
     }
+
+    if (targetReview) {
+      const type = verified ? 'approved' : 'rejected';
+      const orchName = targetReview.orchestra.charAt(0).toUpperCase() + targetReview.orchestra.slice(1);
+      const message = verified 
+        ? `Your review for ${orchName} has been approved and published.` 
+        : `Your review for ${orchName} did not pass the verification guidelines.`;
+
+      await supabase.from('notifications').insert([
+        {
+          user_email: targetReview.user_email,
+          review_id: targetReview.id,
+          type,
+          message
+        }
+      ]);
+    }
     
     // Optimistic local update
     setAllReviews(prev => prev.map(rev => 
@@ -50,16 +73,13 @@ export const useReviews = () => {
     ));
     setVerifiedReviews(prev => {
       if (verified) {
-        return prev; // We don't dynamically append to the verified stream unless forcing a refetch for purity, but we could.
-        // For simplicity, we just trigger a full refetch so things align perfectly:
+        return prev;
       } else {
         return prev.filter(r => r.id !== id);
       }
     });
 
-    // We can also just fetch again silently to make sure it's mathematically sound
     fetchReviews();
-
     return true;
   };
 

@@ -39,3 +39,13 @@ export interface AuditionReview {
     numberOfRounds: number;
   };
 }
+
+export interface AppNotification {
+  id: string;
+  user_email: string;
+  review_id: string | null;
+  type: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
