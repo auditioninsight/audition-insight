@@ -47,8 +47,12 @@ const AppRoutes = () => {
 
       <Route path="/" element={<Navigate to="/auditions" replace />} />
 
-      <Route element={<Layout onLogout={handleLogout} />}>
-        {/* Auditions Hierarchy (Public) */}
+      <Route element={
+        <ProtectedRoute>
+          <Layout onLogout={handleLogout} />
+        </ProtectedRoute>
+      }>
+        {/* Auditions Hierarchy */}
         <Route path="/auditions">
           <Route index element={<CountriesList />} />
           <Route path=":country">
