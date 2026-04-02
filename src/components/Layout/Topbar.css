@@ -95,9 +95,11 @@
     position: static;
     transform: none;
     flex: 1;
+    display: flex;
+    justify-content: center;
   }
   .topbar-logo {
-    height: 50px; /* Reduced dramatically from 350px -> better fit for small screens */
+    height: 70px;
   }
   .hamburger-btn {
     display: flex;

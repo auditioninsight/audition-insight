@@ -237,3 +237,37 @@
   margin-left: var(--space-2);
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
 }
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+  .filter-group {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    justify-content: flex-start;
+  }
+  .filter-btn {
+    flex-shrink: 0;
+  }
+  .submission-card {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .submission-proof {
+    order: -1;
+  }
+  .card-header {
+    flex-wrap: wrap;
+  }
+  .submission-context h3 {
+    font-size: 1.1rem;
+  }
+  .meta-info {
+    flex-wrap: wrap;
+  }
+}

@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
 
       <div className="overview-grid" style={{ marginBottom: '2rem' }}>
         <div className="stat-card glass-panel" style={{ gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
             <h2 style={{ fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <UserIcon size={20} style={{ color: 'var(--accent-blue)' }} />
               Account Info

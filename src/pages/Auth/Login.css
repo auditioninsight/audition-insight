@@ -141,3 +141,16 @@
 .login-footer a:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: var(--space-6);
+  }
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+  .logo-icon-large {
+    width: 64px;
+    height: 64px;
+  }
+}
