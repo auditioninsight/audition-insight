@@ -1,32 +1,41 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Music } from 'lucide-react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 import './Login.css';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errorMSG, setErrorMSG] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+    setErrorMSG('');
+    setLoading(true);
     
-    // Auto-detect role for mock application
-    const ADMIN_EMAILS = ["tuemail@gmail.com"];
-    const role = ADMIN_EMAILS.includes(email) ? 'admin' : 'user';
-    
-    login({
-      id: Math.random().toString(36).substr(2, 9),
-      email: email,
-      role: role
-    });
-    
-    const from = (location.state && location.state.from && location.state.from.pathname) || '/';
-    navigate(from, { replace: true });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        setErrorMSG(error.message);
+      } else {
+        const from = (location.state && location.state.from && location.state.from.pathname) || '/';
+        navigate(from, { replace: true });
+      }
+    } catch (err: any) {
+      setErrorMSG(err.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,6 +50,7 @@ const Login: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
+          {errorMSG && <div style={{color: 'var(--danger-color)', marginBottom: 'var(--space-4)', fontSize: '0.9rem', textAlign: 'center'}}>{errorMSG}</div>}
           <div className="input-group">
             <label htmlFor="email">Email Address</label>
             <div className="input-with-icon">
@@ -71,8 +81,8 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-btn">
-            Sign In
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         

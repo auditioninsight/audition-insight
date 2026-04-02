@@ -1,21 +1,33 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Star, ArrowLeft, Info } from 'lucide-react';
-import { dbMockReviews, getReviewOverallAverage } from '../../data/mockReviews';
+import { useReviews } from '../../hooks/useReviews';
+import { getAllCountries } from '../../data/orchestras';
 
 const InstrumentStatisticsDetail: React.FC = () => {
   const { country, orchestra, instrument } = useParams<{ country: string, orchestra: string, instrument: string }>();
+  const { verifiedReviews } = useReviews();
 
   const stats = useMemo(() => {
     if (!country || !orchestra || !instrument) return null;
 
-    // Filter approved reviews for THIS orchestra and instrument
-    const relevantReviews = dbMockReviews.filter(r => 
-      r.status === 'approved' && 
-      r.orchestra_id.toLowerCase() === orchestra.toLowerCase() &&
-      r.country.toLowerCase() === country.toLowerCase() &&
-      r.instrument.toLowerCase() === instrument.toLowerCase()
+    // Fuzzy mapping for database keys 'at' vs route params 'austria'
+    const targetCountryObj = getAllCountries().find(c => 
+      c.id.toLowerCase() === country?.toLowerCase() || 
+      c.code.toLowerCase() === country?.toLowerCase() ||
+      c.name.toLowerCase() === country?.toLowerCase()
     );
+    const targetCode = targetCountryObj?.code.toLowerCase();
+    const targetId = targetCountryObj?.id.toLowerCase();
+
+    // Filter approved reviews for THIS orchestra and instrument
+    const relevantReviews = verifiedReviews.filter(r => {
+      const dbCountry = r.country.toLowerCase();
+      const matchCountry = dbCountry === targetCode || dbCountry === targetId || dbCountry === country?.toLowerCase();
+      return matchCountry &&
+        r.orchestra.toLowerCase() === orchestra.toLowerCase() &&
+        r.instrument.toLowerCase() === instrument.toLowerCase()
+    });
 
     const count = relevantReviews.length;
     if (count === 0) return { count: 0 };
@@ -55,63 +67,63 @@ const InstrumentStatisticsDetail: React.FC = () => {
     };
 
     relevantReviews.forEach(rev => {
-      totalScore += getReviewOverallAverage(rev);
+      totalScore += rev.rating;
       
-      if (rev.outcome === 'yes') yesCount++;
-      if (rev.outcome === 'no') noCount++;
+      if (rev.awarded === 'yes') yesCount++;
+      if (rev.awarded === 'no') noCount++;
 
-      agg.punctuality.sum += rev.ratings.punctuality;
-      agg.scheduleDistribution.sum += rev.ratings.scheduleDistribution;
+      agg.punctuality.sum += rev.organization?.punctuality || 0;
+      agg.scheduleDistribution.sum += rev.organization?.scheduleDistribution || 0;
       
-      if (rev.logistics.invitationReceived !== undefined) {
-        if (rev.logistics.invitationReceived) agg.invitationReceived.yes++;
+      if (rev.organization?.invitationReceived !== undefined) {
+        if (rev.organization.invitationReceived) agg.invitationReceived.yes++;
         else agg.invitationReceived.no++;
         
-        if (rev.logistics.invitationTiming) {
-          agg.invitationTiming[rev.logistics.invitationTiming] = (agg.invitationTiming[rev.logistics.invitationTiming] || 0) + 1;
+        if (rev.organization.invitationTiming) {
+          agg.invitationTiming[rev.organization.invitationTiming] = (agg.invitationTiming[rev.organization.invitationTiming] || 0) + 1;
         }
       }
 
-      agg.respect.sum += rev.ratings.respect;
-      agg.atmosphere.sum += rev.ratings.atmosphere;
+      agg.respect.sum += rev.treatment?.respect || 0;
+      agg.atmosphere.sum += rev.treatment?.atmosphere || 0;
 
-      agg.communicationOfResults.sum += rev.ratings.communicationOfResults;
-      if (rev.logistics.screenUsedTransparency !== undefined) {
-        if (rev.logistics.screenUsedTransparency) agg.tr_screenUsed.yes++;
+      agg.communicationOfResults.sum += rev.transparency?.communicationOfResults || 0;
+      if (rev.transparency?.screenUsed !== undefined) {
+        if (rev.transparency.screenUsed) agg.tr_screenUsed.yes++;
         else agg.tr_screenUsed.no++;
       }
 
-      if (rev.logistics.feedbackGiven !== undefined) {
-        if (rev.logistics.feedbackGiven) {
+      if (rev.feedback?.feedbackGiven !== undefined) {
+        if (rev.feedback.feedbackGiven) {
           agg.feedbackGiven.yes++;
-          if (rev.ratings.feedbackQuality !== null) {
-            agg.feedbackQuality.sum += rev.ratings.feedbackQuality;
+          if (rev.feedback.feedbackQuality !== null) {
+            agg.feedbackQuality.sum += rev.feedback.feedbackQuality;
             agg.feedbackQuality.count++;
           }
-          if (rev.logistics.feedbackTiming) {
-            agg.feedbackTiming[rev.logistics.feedbackTiming] = (agg.feedbackTiming[rev.logistics.feedbackTiming] || 0) + 1;
+          if (rev.feedback.feedbackTiming) {
+            agg.feedbackTiming[rev.feedback.feedbackTiming] = (agg.feedbackTiming[rev.feedback.feedbackTiming] || 0) + 1;
           }
         } else {
           agg.feedbackGiven.no++;
         }
       }
 
-      if (rev.logistics.warmUpRoom !== undefined) {
+      if (rev.logistics?.warmUpRoom !== undefined) {
         if (rev.logistics.warmUpRoom) agg.warmUpRoom.yes++; else agg.warmUpRoom.no++;
       }
-      if (rev.logistics.warmUpType) {
+      if (rev.logistics?.warmUpType) {
         agg.warmUpType[rev.logistics.warmUpType] = (agg.warmUpType[rev.logistics.warmUpType] || 0) + 1;
       }
-      if (rev.logistics.preStageRoom !== undefined) {
+      if (rev.logistics?.preStageRoom !== undefined) {
         if (rev.logistics.preStageRoom) agg.preStageRoom.yes++; else agg.preStageRoom.no++;
       }
-      if (rev.logistics.called10MinBefore !== undefined) {
+      if (rev.logistics?.called10MinBefore !== undefined) {
         if (rev.logistics.called10MinBefore) agg.called10MinBefore.yes++; else agg.called10MinBefore.no++;
       }
-      if (rev.logistics.screenUsedLogistics !== undefined) {
-        if (rev.logistics.screenUsedLogistics) agg.log_screenUsed.yes++; else agg.log_screenUsed.no++;
+      if (rev.logistics?.screenUsed !== undefined) {
+        if (rev.logistics.screenUsed) agg.log_screenUsed.yes++; else agg.log_screenUsed.no++;
       }
-      if (rev.logistics.numberOfRounds) {
+      if (rev.logistics?.numberOfRounds) {
         agg.numberOfRounds.sum += rev.logistics.numberOfRounds;
       }
     });
@@ -125,7 +137,7 @@ const InstrumentStatisticsDetail: React.FC = () => {
       detailed: agg
     };
 
-  }, [country, orchestra, instrument]);
+  }, [country, orchestra, instrument, verifiedReviews]);
 
   const renderBar = (totalSum: number, count: number, label: string) => {
     if (count === 0) return null;

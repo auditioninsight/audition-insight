@@ -1,0 +1,41 @@
+export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+
+export interface AuditionReview {
+  id: string;
+  created_at: string;
+  user_email: string;
+  country: string;
+  orchestra: string;
+  instrument: string;
+  rating: number;
+  awarded: 'yes' | 'no' | 'unknown';
+  verified: boolean;
+  
+  organization: {
+    punctuality: number;
+    scheduleDistribution: number;
+    invitationReceived: boolean;
+    invitationTiming?: string;
+  };
+  treatment: {
+    respect: number;
+    atmosphere: number;
+  };
+  transparency: {
+    communicationOfResults: number;
+    screenUsed: boolean;
+  };
+  feedback: {
+    feedbackGiven: boolean;
+    feedbackQuality: number | null;
+    feedbackTiming?: string;
+  };
+  logistics: {
+    warmUpRoom: boolean;
+    warmUpType: string;
+    preStageRoom: boolean;
+    called10MinBefore: boolean;
+    screenUsed: boolean;
+    numberOfRounds: number;
+  };
+}

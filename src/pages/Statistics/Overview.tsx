@@ -1,26 +1,28 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Map as MapIcon, ChevronRight, Star } from 'lucide-react';
-import { dbMockReviews, getReviewOverallAverage } from '../../data/mockReviews';
+import { useReviews } from '../../hooks/useReviews';
 import { getAllCountries } from '../../data/orchestras';
 import '../Auditions/ListView.css'; 
 import './Overview.css';
 
 const Overview: React.FC = () => {
+  const { verifiedReviews } = useReviews();
+
   // Aggregate Advanced Statistics efficiently using useMemo and enforcing manual verification rules
   const stats = useMemo(() => {
     // Phase 3 Core Rule: ONLY INCLUDE APPROVED REVIEWS
-    const approvedReviews = dbMockReviews.filter(r => r.status === 'approved');
-    const totalApproved = approvedReviews.length;
+    const totalApproved = verifiedReviews.length;
 
     // 3. Country-Level Aggregation
     const countryMap = new Map<string, { count: number; sum: number }>();
 
-    approvedReviews.forEach(rev => {
-      const current = countryMap.get(rev.country) || { count: 0, sum: 0 };
-      const revAvg = getReviewOverallAverage(rev);
+    verifiedReviews.forEach(rev => {
+      const countryId = rev.country ? rev.country.toLowerCase() : '';
+      const current = countryMap.get(countryId) || { count: 0, sum: 0 };
+      const revAvg = rev.rating;
       
-      countryMap.set(rev.country, {
+      countryMap.set(countryId, {
         count: current.count + 1,
         sum: current.sum + revAvg
       });
@@ -28,7 +30,9 @@ const Overview: React.FC = () => {
 
     const allCountries = getAllCountries();
     const rankedCountries = allCountries.map(country => {
-      const data = countryMap.get(country.id) || { count: 0, sum: 0 };
+      const dbCode = country.code.toLowerCase();
+      const dbId = country.id.toLowerCase();
+      const data = countryMap.get(dbCode) || countryMap.get(dbId) || { count: 0, sum: 0 };
       return {
         id: country.id,
         name: country.name,
@@ -45,7 +49,7 @@ const Overview: React.FC = () => {
       totalApproved,
       rankedCountries
     };
-  }, []);
+  }, [verifiedReviews]);
 
   return (
     <div className="list-view-container animate-fade-in">

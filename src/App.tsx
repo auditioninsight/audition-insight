@@ -13,6 +13,7 @@ import CountriesList from './pages/Auditions/CountriesList';
 import OrchestrasList from './pages/Auditions/OrchestrasList';
 import InstrumentsList from './pages/Auditions/InstrumentsList';
 import PositionsList from './pages/Auditions/PositionsList';
+import AuditionList from './pages/Auditions/AuditionList';
 
 // Review
 import ReviewForm from './pages/Review/ReviewForm';
@@ -22,6 +23,8 @@ import Overview from './pages/Statistics/Overview';
 import StatisticsOrchestrasList from './pages/Statistics/StatisticsOrchestrasList';
 import StatisticsInstrumentsList from './pages/Statistics/StatisticsInstrumentsList';
 import InstrumentStatisticsDetail from './pages/Statistics/InstrumentStatisticsDetail.tsx';
+
+import Profile from './pages/Profile/Profile';
 
 import AdminPanel from './pages/Admin/AdminPanel';
 
@@ -41,15 +44,11 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      
+
       <Route path="/" element={<Navigate to="/auditions" replace />} />
-      
-      <Route element={
-        <ProtectedRoute>
-          <Layout onLogout={handleLogout} />
-        </ProtectedRoute>
-      }>
-        {/* Auditions Hierarchy */}
+
+      <Route element={<Layout onLogout={handleLogout} />}>
+        {/* Auditions Hierarchy (Public) */}
         <Route path="/auditions">
           <Route index element={<CountriesList />} />
           <Route path=":country">
@@ -58,32 +57,48 @@ const AppRoutes = () => {
               <Route index element={<InstrumentsList />} />
               <Route path=":instrument">
                 <Route index element={<PositionsList />} />
-                <Route path=":position" element={<ReviewForm />} />
+                
+                {/* Protected Form Route - Only logged in users can submit reviews */}
+                <Route path=":position" element={
+                  <ProtectedRoute>
+                    <ReviewForm />
+                  </ProtectedRoute>
+                } />
               </Route>
             </Route>
           </Route>
         </Route>
-        
-        {/* Statistics Section (Hierarchical Navigation) */}
+
+        {/* Global Public Feed */}
+        <Route path="/feed" element={<AuditionList />} />
+
+        {/* Statistics Section (Public) */}
         <Route path="/statistics" element={<Overview />} />
         <Route path="/statistics/:country" element={<StatisticsOrchestrasList />} />
         <Route path="/statistics/:country/:orchestra" element={<StatisticsInstrumentsList />} />
         <Route path="/statistics/:country/:orchestra/:instrument" element={<InstrumentStatisticsDetail />} />
-        
-        {/* Admin Section */}
+
+        {/* Profile (Protected) */}
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin Section (Protected) */}
         <Route path="/verification" element={
           <ProtectedRoute requireAdmin={true}>
             <AdminPanel />
           </ProtectedRoute>
         } />
       </Route>
-      
+
       <Route path="*" element={<Navigate to="/auditions" replace />} />
     </Routes>
   );
 };
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -92,5 +107,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

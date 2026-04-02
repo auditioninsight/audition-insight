@@ -1,13 +1,17 @@
+
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Star, Info, CheckCircle2, ChevronDown } from 'lucide-react';
 import { notifyAdmin } from '../../utils/notifications';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import './ReviewForm.css';
 import './VerificationAdditions.css';
 
 const ReviewForm: React.FC = () => {
-  const { country, orchestra, instrument, position } = useParams<{ 
-    country: string, orchestra: string, instrument: string, position: string 
+  const { user } = useAuth();
+  const { country, orchestra, instrument, position } = useParams<{
+    country: string, orchestra: string, instrument: string, position: string
   }>();
 
   // New Data Structure State
@@ -52,16 +56,50 @@ const ReviewForm: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simulate linking ratings to composite key for statistics
-    const submissionId = `${orchestra}_${instrument}_${position}`;
-    console.log("Submitting pending data for:", submissionId, {
-      ...formData,
-      status: 'pending'
-    });
-    
+
+    const organization = {
+      punctuality: formData.punctuality,
+      scheduleDistribution: formData.scheduleDistribution,
+      invitationReceived: formData.invitationReceived,
+      invitationTiming: formData.invitationTiming
+    };
+    const treatment = { respect: formData.respect, atmosphere: formData.atmosphere };
+    const transparency = { communicationOfResults: formData.communicationOfResults, screenUsed: formData.tr_screenUsed };
+    const feedback = { feedbackGiven: formData.feedbackGiven, feedbackQuality: formData.feedbackQuality, feedbackTiming: formData.feedbackTiming };
+    const logistics = { warmUpRoom: formData.warmUpRoom, warmUpType: formData.warmUpType, preStageRoom: formData.preStageRoom, called10MinBefore: formData.called10MinBefore, screenUsed: formData.log_screenUsed, numberOfRounds: formData.numberOfRounds };
+
+    // Calculate simple rating average from available star ratings
+    const rating = Math.round((formData.punctuality + formData.scheduleDistribution + formData.respect + formData.atmosphere + formData.communicationOfResults) / 5) || 0;
+    const awarded = formData.outcome === 'yes';
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert([
+        {
+          user_email: user?.email || 'test@test.com',
+          country,
+          orchestra,
+          instrument,
+          rating,
+          awarded: awarded ? 'yes' : 'no',
+          organization,
+          treatment,
+          transparency,
+          feedback,
+          logistics,
+          verified: false,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) {
+      console.error('ERROR INSERTING REVIEW:', error);
+    } else {
+      console.log('REVIEW SAVED:', data);
+    }
+
     notifyAdmin({
       orchestra: orchestra || 'Unknown',
       instrument: instrument || 'Unknown',
@@ -128,7 +166,7 @@ const ReviewForm: React.FC = () => {
           <CheckCircle2 size={64} className="success-icon text-gold" />
           <h2>Review Submitted</h2>
           <p>Your review has been submitted. The <strong>administration has been notified</strong>.</p>
-          <p className="text-muted" style={{fontSize: '0.9rem'}}>It will be included in the anonymous statistics for <strong>{instrument} • {position} ({orchestra})</strong> once approved.</p>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>It will be included in the anonymous statistics for <strong>{instrument} • {position} ({orchestra})</strong> once approved.</p>
           <Link to={`/auditions/${country}/${orchestra}/${instrument}`} className="back-btn mt-6">
             <ArrowLeft size={16} /> Return to Positions
           </Link>
@@ -157,7 +195,7 @@ const ReviewForm: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="review-form glass-panel complex-form">
-        
+
         {/* Organization */}
         <div className="form-section">
           <h3 className="section-title">Organization</h3>
@@ -177,8 +215,8 @@ const ReviewForm: React.FC = () => {
             <div className="form-row nested-row animate-fade-in">
               <div className="form-label text-muted">↳ When did you receive the invitation?</div>
               <div className="select-wrapper">
-                <select 
-                  value={formData.invitationTiming} 
+                <select
+                  value={formData.invitationTiming}
                   onChange={(e) => handleSelect('invitationTiming', e.target.value)}
                   required
                 >
@@ -232,8 +270,8 @@ const ReviewForm: React.FC = () => {
               <div className="form-row nested-row animate-fade-in">
                 <div className="form-label text-muted">↳ When was the feedback given?</div>
                 <div className="select-wrapper">
-                  <select 
-                    value={formData.feedbackTiming} 
+                  <select
+                    value={formData.feedbackTiming}
                     onChange={(e) => handleSelect('feedbackTiming', e.target.value)}
                     required
                   >
@@ -258,9 +296,9 @@ const ReviewForm: React.FC = () => {
         {/* Logistics */}
         <div className="form-section">
           <h3 className="section-title">Logistics</h3>
-          
+
           {/* Call Method removed */}
-          
+
           <div className="form-row">
             <div className="form-label">Warm-up Room Provided</div>
             {renderToggle('warmUpRoom')}
@@ -269,8 +307,8 @@ const ReviewForm: React.FC = () => {
           <div className="form-row">
             <div className="form-label">Warm-up Type</div>
             <div className="select-wrapper">
-              <select 
-                value={formData.warmUpType} 
+              <select
+                value={formData.warmUpType}
                 onChange={(e) => handleSelect('warmUpType', e.target.value)}
                 required
               >
@@ -301,14 +339,14 @@ const ReviewForm: React.FC = () => {
           <div className="form-row">
             <div className="form-label">Number of Rounds</div>
             <div className="number-input-wrapper">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="number-btn"
                 onClick={() => handleRating('numberOfRounds', Math.max(1, formData.numberOfRounds - 1))}
               >-</button>
               <span className="number-display">{formData.numberOfRounds}</span>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="number-btn"
                 onClick={() => handleRating('numberOfRounds', formData.numberOfRounds + 1)}
               >+</button>
@@ -322,8 +360,8 @@ const ReviewForm: React.FC = () => {
           <div className="form-row">
             <div className="form-label">Was the position awarded?</div>
             <div className="select-wrapper">
-              <select 
-                value={formData.outcome} 
+              <select
+                value={formData.outcome}
                 onChange={(e) => handleSelect('outcome', e.target.value)}
                 required
               >
@@ -343,14 +381,14 @@ const ReviewForm: React.FC = () => {
           <div className="form-row file-upload-row">
             <div className="form-label">
               Upload audition invitation (required)
-              <span className="form-hint" style={{display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)'}}>
+              <span className="form-hint" style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 Accepted formats: .pdf, .jpg, .png. This file is strictly for manual verification and will not be displayed publicly.
               </span>
             </div>
             <div className="file-input-wrapper">
-              <input 
-                type="file" 
-                accept=".pdf, image/jpeg, image/png" 
+              <input
+                type="file"
+                accept=".pdf, image/jpeg, image/png"
                 onChange={handleFileChange}
                 required
                 className="file-input"

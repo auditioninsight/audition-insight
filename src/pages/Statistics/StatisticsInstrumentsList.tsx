@@ -1,22 +1,33 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Music, Star, Users, ArrowLeft, Info } from 'lucide-react';
-import { dbMockReviews, getReviewOverallAverage } from '../../data/mockReviews';
+import { useReviews } from '../../hooks/useReviews';
+import { getAllCountries } from '../../data/orchestras';
 import '../Auditions/ListView.css'; 
 
 const StatisticsInstrumentsList: React.FC = () => {
   const { country, orchestra } = useParams<{ country: string, orchestra: string }>();
   const navigate = useNavigate();
+  const { verifiedReviews } = useReviews();
 
   const stats = useMemo(() => {
     if (!country || !orchestra) return null;
 
-    // Filter approved reviews for THIS orchestra
-    const relevantReviews = dbMockReviews.filter(r => 
-      r.status === 'approved' && 
-      r.orchestra_id.toLowerCase() === orchestra.toLowerCase() &&
-      r.country.toLowerCase() === country.toLowerCase()
+    // Fuzzy mapping for database keys 'at' vs route params 'austria'
+    const targetCountryObj = getAllCountries().find(c => 
+      c.id.toLowerCase() === country?.toLowerCase() || 
+      c.code.toLowerCase() === country?.toLowerCase() ||
+      c.name.toLowerCase() === country?.toLowerCase()
     );
+    const targetCode = targetCountryObj?.code.toLowerCase();
+    const targetId = targetCountryObj?.id.toLowerCase();
+
+    // Filter approved reviews for THIS orchestra and THIS country
+    const relevantReviews = verifiedReviews.filter(r => {
+      const dbCountry = r.country.toLowerCase();
+      const matchCountry = dbCountry === targetCode || dbCountry === targetId || dbCountry === country?.toLowerCase();
+      return matchCountry && r.orchestra.toLowerCase() === orchestra.toLowerCase();
+    });
 
     const totalApproved = relevantReviews.length;
     if (totalApproved === 0) return { totalApproved: 0, instruments: [] };
@@ -25,14 +36,15 @@ const StatisticsInstrumentsList: React.FC = () => {
     const instrumentMap = new Map<string, { count: number; sum: number; yesCount: number; noCount: number }>();
 
     relevantReviews.forEach(rev => {
-      const current = instrumentMap.get(rev.instrument) || { count: 0, sum: 0, yesCount: 0, noCount: 0 };
-      const revAvg = getReviewOverallAverage(rev);
+      const instrId = rev.instrument ? rev.instrument.toLowerCase() : '';
+      const current = instrumentMap.get(instrId) || { count: 0, sum: 0, yesCount: 0, noCount: 0 };
+      const revAvg = rev.rating;
       
-      instrumentMap.set(rev.instrument, {
+      instrumentMap.set(instrId, {
         count: current.count + 1,
         sum: current.sum + revAvg,
-        yesCount: current.yesCount + (rev.outcome === 'yes' ? 1 : 0),
-        noCount: current.noCount + (rev.outcome === 'no' ? 1 : 0)
+        yesCount: current.yesCount + (rev.awarded === 'yes' ? 1 : 0),
+        noCount: current.noCount + (rev.awarded === 'no' ? 1 : 0)
       });
     });
 
@@ -51,7 +63,7 @@ const StatisticsInstrumentsList: React.FC = () => {
       .sort((a, b) => b.average - a.average);
 
     return { totalApproved, instruments };
-  }, [country, orchestra]);
+  }, [country, orchestra, verifiedReviews]);
 
   return (
     <div className="list-view-container animate-fade-in">
@@ -88,7 +100,7 @@ const StatisticsInstrumentsList: React.FC = () => {
                   <div className="card-icon" style={{background: 'rgba(37, 99, 235, 0.1)', color: 'var(--accent-gold)'}}>
                     <Music size={24} />
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{inst.name}</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'capitalize' }}>{inst.name}</h3>
                 </div>
                 
                 <div className="card-text" style={{ width: '100%', marginTop: 'var(--space-4)' }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Map, BarChart2, LogOut, Shield } from 'lucide-react';
+import { Map, BarChart2, LogOut, Shield, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
@@ -36,6 +36,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, isOpen, onClose }) => {
         >
           <BarChart2 className="nav-icon" size={20} />
           <span>Statistics</span>
+        </NavLink>
+        
+        <NavLink 
+          to="/profile" 
+          onClick={onClose}
+          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+        >
+          <User className="nav-icon" size={20} />
+          <span>Profile</span>
         </NavLink>
         
         {user && user.role === 'admin' && (

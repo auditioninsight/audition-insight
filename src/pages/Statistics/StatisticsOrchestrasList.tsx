@@ -1,23 +1,35 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Building2, Star, Users, ArrowLeft, ChevronRight, Info } from 'lucide-react';
-import { dbMockReviews, getReviewOverallAverage } from '../../data/mockReviews';
-import { getOrchestrasByCountry, getCountryNameByCode } from '../../data/orchestras';
+import { useReviews } from '../../hooks/useReviews';
+import { getOrchestrasByCountry, getCountryNameByCode, getAllCountries } from '../../data/orchestras';
 import '../Auditions/ListView.css'; 
 
 const StatisticsOrchestrasList: React.FC = () => {
   const { country } = useParams<{ country: string }>();
 
   const countryName = getCountryNameByCode(country || '');
+  const { verifiedReviews } = useReviews();
 
   const stats = useMemo(() => {
     if (!country) return null;
 
-    // Filter approved reviews for THIS country
-    const relevantReviews = dbMockReviews.filter(r => 
-      r.status === 'approved' && 
-      r.country.toLowerCase() === country.toLowerCase()
+    const dbCountries = getOrchestrasByCountry(country);
+    
+    // Fuzzy matching to link db insertions of "at" with route ID of "austria"
+    const targetCountryObj = getAllCountries().find(c => 
+      c.id.toLowerCase() === country?.toLowerCase() || 
+      c.code.toLowerCase() === country?.toLowerCase() ||
+      c.name.toLowerCase() === country?.toLowerCase()
     );
+    const targetCode = targetCountryObj?.code.toLowerCase();
+    const targetId = targetCountryObj?.id.toLowerCase();
+
+    // Filter approved reviews for THIS country
+    const relevantReviews = verifiedReviews.filter(r => {
+      const dbCountry = r.country.toLowerCase();
+      return dbCountry === targetCode || dbCountry === targetId || dbCountry === country?.toLowerCase();
+    });
 
     const totalApproved = relevantReviews.length;
 
@@ -25,18 +37,18 @@ const StatisticsOrchestrasList: React.FC = () => {
     const orchestraMap = new Map<string, { count: number; sum: number }>();
 
     relevantReviews.forEach(rev => {
-      const current = orchestraMap.get(rev.orchestra_id) || { count: 0, sum: 0 };
-      const revAvg = getReviewOverallAverage(rev);
+      const orchId = rev.orchestra ? rev.orchestra.toLowerCase() : '';
+      const current = orchestraMap.get(orchId) || { count: 0, sum: 0 };
+      const revAvg = rev.rating;
       
-      orchestraMap.set(rev.orchestra_id, {
+      orchestraMap.set(orchId, {
         count: current.count + 1,
         sum: current.sum + revAvg
       });
     });
 
-    const dbOrchs = getOrchestrasByCountry(country);
-    const orchestras = dbOrchs.map(orch => {
-      const data = orchestraMap.get(orch.id) || { count: 0, sum: 0 };
+    const orchestras = dbCountries.map(orch => {
+      const data = orchestraMap.get(orch.id.toLowerCase()) || { count: 0, sum: 0 };
       return {
         id: orch.id,
         name: orch.name,
@@ -50,7 +62,7 @@ const StatisticsOrchestrasList: React.FC = () => {
     });
 
     return { totalApproved, orchestras };
-  }, [country]);
+  }, [country, verifiedReviews]);
 
   return (
     <div className="list-view-container animate-fade-in">

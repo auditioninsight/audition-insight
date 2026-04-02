@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { Check, X, FileText } from 'lucide-react';
-import type { AuditionReview, ReviewStatus } from '../../data/mockReviews';
-import { dbMockReviews } from '../../data/mockReviews';
+import type { ReviewStatus } from '../../types';
+import { useReviews } from '../../hooks/useReviews';
 import { getOrchestraById } from '../../data/orchestras';
 import './AdminPanel.css';
 
 const AdminPanel: React.FC = () => {
-  const [reviews, setReviews] = useState<AuditionReview[]>(dbMockReviews);
+  const { allReviews, loading, updateReviewVerification } = useReviews();
   const [filter, setFilter] = useState<ReviewStatus | 'all'>('pending');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleStatusChange = (id: string, newStatus: ReviewStatus) => {
-    setReviews(prev => prev.map(rev => 
-      rev.id === id ? { ...rev, status: newStatus } : rev
-    ));
+  const handleStatusChange = async (id: string, newStatus: ReviewStatus) => {
+    // Map status into boolean `verified`
+    const isVerified = newStatus === 'approved';
+    await updateReviewVerification(id, isVerified);
   };
 
-  const filteredReviews = reviews.filter(rev => filter === 'all' || rev.status === filter);
+  const reviewsWithStatus = allReviews.map(r => ({
+    ...r,
+    status: r.verified ? 'approved' as ReviewStatus : 'pending' as ReviewStatus
+  }));
+
+  const filteredReviews = reviewsWithStatus.filter(rev => filter === 'all' || rev.status === filter);
 
   const getStatusBadgeClass = (status: ReviewStatus) => {
     switch(status) {
@@ -41,14 +46,19 @@ const AdminPanel: React.FC = () => {
               onClick={() => setFilter(f)}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-              {f === 'pending' && <span className="count-badge">{reviews.filter(r => r.status === 'pending').length}</span>}
+              {f === 'pending' && <span className="count-badge">{reviewsWithStatus.filter(r => r.status === 'pending').length}</span>}
             </button>
           ))}
         </div>
       </div>
 
       <div className="submissions-list">
-        {filteredReviews.length === 0 ? (
+        {loading ? (
+          <div className="empty-state glass-panel">
+            <h3>Loading reviews...</h3>
+            <p className="text-muted">Connecting to database</p>
+          </div>
+        ) : filteredReviews.length === 0 ? (
           <div className="empty-state glass-panel">
             <Check size={48} className="text-muted" />
             <h3>No {filter !== 'all' ? filter : ''} reviews found</h3>
@@ -66,15 +76,15 @@ const AdminPanel: React.FC = () => {
                   {review.status === 'pending' && (
                     <span className="new-badge animate-pulse">NEW</span>
                   )}
-                  <span className="date-submitted">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  <span className="date-submitted">{new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
                 {(() => {
-                  const orch = getOrchestraById(review.orchestra_id);
-                  return <h3>{(orch && orch.name) || review.orchestra_id.toUpperCase()}</h3>;
+                  const orch = getOrchestraById(review.orchestra);
+                  return <h3>{(orch && orch.name) || review.orchestra.toUpperCase()}</h3>;
                 })()}
                 <div className="meta-info">
                   <span className="instrument-tag">{review.instrument}</span>
-                  <span className="position-tag">{review.position}</span>
+                  <span className="position-tag">Unknown Position</span>
                 </div>
                 <div className="submission-id text-muted">ID: {review.id}</div>
                 
@@ -82,10 +92,10 @@ const AdminPanel: React.FC = () => {
                 <div className="admin-ratings-preview" style={{ marginTop: 'var(--space-4)', padding: 'var(--space-3)', background: 'rgba(255, 255, 255, 0.03)', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>APPLICANT RATINGS</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', fontSize: '0.9rem' }}>
-                    <div>Punctuality: <span className="text-gold">{review.ratings.punctuality}/5</span></div>
-                    <div>Respect: <span className="text-gold">{review.ratings.respect}/5</span></div>
-                    <div>Transparency: <span className="text-gold">{review.ratings.communicationOfResults}/5</span></div>
-                    <div>Schedule: <span className="text-gold">{review.ratings.scheduleDistribution}/5</span></div>
+                    <div>Punctuality: <span className="text-gold">{review.organization?.punctuality || '-'}/5</span></div>
+                    <div>Respect: <span className="text-gold">{review.treatment?.respect || '-'}/5</span></div>
+                    <div>Transparency: <span className="text-gold">{review.transparency?.communicationOfResults || '-'}/5</span></div>
+                    <div>Schedule: <span className="text-gold">{review.organization?.scheduleDistribution || '-'}/5</span></div>
                   </div>
                 </div>
               </div>
@@ -93,7 +103,7 @@ const AdminPanel: React.FC = () => {
               <div className="submission-proof">
                 <div 
                   className="proof-preview-frame" 
-                  onClick={() => setPreviewUrl(`/${review.proofImage}`)}
+                  onClick={() => setPreviewUrl(`/proof-placeholder.pdf`)}
                   style={{ 
                     width: '100%', 
                     height: '160px', 
@@ -108,10 +118,10 @@ const AdminPanel: React.FC = () => {
                   onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.filter = 'brightness(1.1)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(1)'; }}
                 >
-                  {review.proofImage.match(/\.(pdf)$/i) ? (
-                    <iframe src={`/${review.proofImage}`} style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }} title="PDF Preview" />
-                  ) : review.proofImage.match(/\.(jpg|jpeg|png|webp)$/i) ? (
-                    <img src={`/${review.proofImage}`} alt="Proof Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {true ? (
+                    <iframe src={`/proof-placeholder.pdf`} style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }} title="PDF Preview" />
+                  ) : false ? (
+                    <img src={`/proof-placeholder.png`} alt="Proof Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                       <FileText size={32} />
@@ -120,7 +130,7 @@ const AdminPanel: React.FC = () => {
                 </div>
                 <div className="proof-box" style={{ background: 'transparent', padding: 0 }}>
                   <div className="proof-details" style={{ flex: 1 }}>
-                    <span className="file-name" style={{ fontWeight: '600' }}>{review.proofImage}</span>
+                    <span className="file-name" style={{ fontWeight: '600' }}>proof-placeholder.pdf</span>
                   </div>
                 </div>
               </div>
