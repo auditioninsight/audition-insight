@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Bell, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -10,6 +11,7 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -102,7 +104,13 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
           )}
         </div>
 
-        <div className="user-profile">
+        <div 
+          className="user-profile" 
+          onClick={() => navigate('/profile')} 
+          style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+        >
           <div className="avatar">
             <User size={20} />
           </div>
