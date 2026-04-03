@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, 4000);
 
     const fetchProfile = async (authUser: any) => {
+      if (mounted) setLoading(true); // Always force loading screen when shifting session context
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -65,41 +66,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Supabase Auth Error:", error.message);
-          throw error;
-        }
-
-        if (session?.user) {
-          await fetchProfile(session.user);
-        } else {
-          if (mounted) {
-            setUser(null);
-            setLoading(false);
-          }
-        }
-      } catch (e) {
-        console.error("Failed to initialize session. Check if Vercel Environment Variables are set:", e);
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
+    // 1. Immediately invoke getSession to bypass React 18 Strict Mode INITIAL_SESSION miss
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("Session error:", error.message);
+        if (mounted) { setUser(null); setLoading(false); }
+      } else if (session?.user) {
+        fetchProfile(session.user); // Do not await in outer scope to prevent blocking
+      } else {
+        if (mounted) { setUser(null); setLoading(false); }
       }
-    };
+    });
 
-    initializeAuth();
-
+    // 2. Listen to state changes without deadlocking the Supabase async queue
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // Prevent duplicate calls if INITIAL_SESSION overlaps with getSession
-        if (event === 'INITIAL_SESSION') return;
-        
+      (_event, session) => {
         if (session?.user) {
-          await fetchProfile(session.user);
+          fetchProfile(session.user); // Fire and forget. DO NOT AWAIT THIS.
         } else {
           if (mounted) {
             setUser(null);
