@@ -26,6 +26,7 @@ import StatisticsInstrumentsList from './pages/Statistics/StatisticsInstrumentsL
 import InstrumentStatisticsDetail from './pages/Statistics/InstrumentStatisticsDetail.tsx';
 
 import Profile from './pages/Profile/Profile';
+import Contact from './pages/Contact/Contact';
 
 import AdminPanel from './pages/Admin/AdminPanel';
 
@@ -87,6 +88,13 @@ const AppRoutes = () => {
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        } />
+
+        {/* Contact (Protected) */}
+        <Route path="/contact" element={
+          <ProtectedRoute>
+            <Contact />
           </ProtectedRoute>
         } />
 

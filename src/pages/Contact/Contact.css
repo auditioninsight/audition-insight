@@ -1,0 +1,8 @@
+.contact-container {
+  padding: 0 var(--space-4);
+}
+@media (max-width: 768px) {
+  .contact-container {
+    padding: 0;
+  }
+}
