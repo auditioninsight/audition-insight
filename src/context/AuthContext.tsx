@@ -27,6 +27,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Safety fallback: if Supabase completely hangs for any reason, force unlock after 4 seconds
+    const safetyTimeout = setTimeout(() => {
+      if (mounted && loading) {
+        setLoading(false);
+      }
+    }, 4000);
+
     const fetchProfile = async (authUser: any) => {
       try {
         const { data, error } = await supabase
@@ -36,9 +45,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .single();
           
         if (error) {
-          setUser({ id: authUser.id, email: authUser.email, role: 'user' });
+          if (mounted) setUser({ id: authUser.id, email: authUser.email, role: 'user' });
         } else {
-          setUser({
+          if (mounted) setUser({
             id: data.id,
             email: data.email || authUser.email,
             role: (data.role as Role) || 'user',
@@ -49,9 +58,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           });
         }
       } catch (err) {
-        setUser({ id: authUser.id, email: authUser.email, role: 'user' });
+        if (mounted) setUser({ id: authUser.id, email: authUser.email, role: 'user' });
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
+        clearTimeout(safetyTimeout);
       }
     };
 
@@ -67,30 +77,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (session?.user) {
           await fetchProfile(session.user);
         } else {
-          setUser(null);
-          setLoading(false);
+          if (mounted) {
+            setUser(null);
+            setLoading(false);
+          }
         }
       } catch (e) {
         console.error("Failed to initialize session. Check if Vercel Environment Variables are set:", e);
-        setUser(null);
-        setLoading(false);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
 
     initializeAuth();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        // Prevent duplicate calls if INITIAL_SESSION overlaps with getSession
+        if (event === 'INITIAL_SESSION') return;
+        
         if (session?.user) {
           await fetchProfile(session.user);
         } else {
-          setUser(null);
-          setLoading(false);
+          if (mounted) {
+            setUser(null);
+            setLoading(false);
+          }
         }
       }
     );
 
     return () => {
+      mounted = false;
+      clearTimeout(safetyTimeout);
       authListener.subscription.unsubscribe();
     };
   }, []);
