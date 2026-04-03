@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ReviewsProvider } from './context/ReviewsContext';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -105,9 +106,11 @@ const AppRoutes = () => {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <ReviewsProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </ReviewsProvider>
     </AuthProvider>
   );
 }
