@@ -337,8 +337,8 @@ const ReviewForm: React.FC = () => {
               >
                 <option value="" disabled>Select Type</option>
                 <option value="individual">Individual</option>
-                <option value="group">Group</option>
-                <option value="none">None</option>
+                <option value="small groups">Small groups</option>
+                <option value="big group room">Big group room</option>
               </select>
               <ChevronDown className="select-icon" size={16} />
             </div>
