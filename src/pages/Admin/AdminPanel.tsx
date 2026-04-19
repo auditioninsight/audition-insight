@@ -95,7 +95,7 @@ const AdminPanel: React.FC = () => {
                     <div>Punctuality: <span className="text-gold">{review.organization?.punctuality || '-'}/5</span></div>
                     <div>Respect: <span className="text-gold">{review.treatment?.respect || '-'}/5</span></div>
                     <div>Transparency: <span className="text-gold">{review.transparency?.communicationOfResults || '-'}/5</span></div>
-                    <div>Schedule: <span className="text-gold">{review.organization?.scheduleDistribution || '-'}/5</span></div>
+                    <div>Schedules: <span className="text-gold">{review.organization?.timeSchedulesAssigned ? 'Yes' : 'No'}</span></div>
                   </div>
                 </div>
               </div>

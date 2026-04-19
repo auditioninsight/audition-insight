@@ -18,15 +18,16 @@ const ReviewForm: React.FC = () => {
   const [formData, setFormData] = useState({
     // Organization
     punctuality: 0,
-    scheduleDistribution: 0,
+    timeSchedulesAssigned: null as boolean | null,
+    scheduleDistributionType: '',
     invitationReceived: null as boolean | null,
     invitationTiming: '',
     // Treatment
     respect: 0,
     atmosphere: 0,
+    supportStaffPresent: null as boolean | null,
     // Transparency
     communicationOfResults: 0,
-    tr_screenUsed: null as boolean | null,
     // Feedback
     feedbackGiven: null as boolean | null,
     feedbackQuality: 0,
@@ -61,17 +62,22 @@ const ReviewForm: React.FC = () => {
 
     const organization = {
       punctuality: formData.punctuality,
-      scheduleDistribution: formData.scheduleDistribution,
-      invitationReceived: formData.invitationReceived,
+      timeSchedulesAssigned: formData.timeSchedulesAssigned ?? undefined,
+      scheduleDistributionType: formData.scheduleDistributionType || undefined,
+      invitationReceived: formData.invitationReceived ?? undefined,
       invitationTiming: formData.invitationTiming
     };
-    const treatment = { respect: formData.respect, atmosphere: formData.atmosphere };
-    const transparency = { communicationOfResults: formData.communicationOfResults, screenUsed: formData.tr_screenUsed };
+    const treatment = { 
+      respect: formData.respect, 
+      atmosphere: formData.atmosphere,
+      supportStaffPresent: formData.supportStaffPresent ?? undefined
+    };
+    const transparency = { communicationOfResults: formData.communicationOfResults };
     const feedback = { feedbackGiven: formData.feedbackGiven, feedbackQuality: formData.feedbackQuality, feedbackTiming: formData.feedbackTiming };
     const logistics = { warmUpRoom: formData.warmUpRoom, warmUpType: formData.warmUpType, preStageRoom: formData.preStageRoom, called10MinBefore: formData.called10MinBefore, screenUsed: formData.log_screenUsed, numberOfRounds: formData.numberOfRounds };
 
     // Calculate simple rating average from available star ratings
-    const rating = Math.round((formData.punctuality + formData.scheduleDistribution + formData.respect + formData.atmosphere + formData.communicationOfResults) / 5) || 0;
+    const rating = Math.round((formData.punctuality + formData.respect + formData.atmosphere + formData.communicationOfResults) / 4) || 0;
     const awarded = formData.outcome === 'yes';
 
     const { data, error } = await supabase
@@ -204,9 +210,26 @@ const ReviewForm: React.FC = () => {
             {renderStars('punctuality')}
           </div>
           <div className="form-row">
-            <div className="form-label">Schedule Distribution</div>
-            {renderStars('scheduleDistribution')}
+            <div className="form-label">Time Schedules were assigned</div>
+            {renderToggle('timeSchedulesAssigned')}
           </div>
+          {formData.timeSchedulesAssigned && (
+            <div className="form-row nested-row animate-fade-in">
+              <div className="form-label text-muted">↳ Distribution type</div>
+              <div className="select-wrapper">
+                <select
+                  value={formData.scheduleDistributionType}
+                  onChange={(e) => handleSelect('scheduleDistributionType', e.target.value)}
+                  required
+                >
+                  <option value="" disabled>Select Type</option>
+                  <option value="Groups">Groups</option>
+                  <option value="Personal schedule">Personal schedule</option>
+                </select>
+                <ChevronDown className="select-icon" size={16} />
+              </div>
+            </div>
+          )}
           <div className="form-row">
             <div className="form-label">Did you receive an invitation?</div>
             {renderToggle('invitationReceived')}
@@ -236,6 +259,10 @@ const ReviewForm: React.FC = () => {
         <div className="form-section">
           <h3 className="section-title">Treatment</h3>
           <div className="form-row">
+            <div className="form-label">Support Staff at the audition</div>
+            {renderToggle('supportStaffPresent')}
+          </div>
+          <div className="form-row">
             <div className="form-label">Respect</div>
             {renderStars('respect')}
           </div>
@@ -251,10 +278,6 @@ const ReviewForm: React.FC = () => {
           <div className="form-row">
             <div className="form-label">Communication of Results</div>
             {renderStars('communicationOfResults')}
-          </div>
-          <div className="form-row">
-            <div className="form-label">Screen Used</div>
-            {renderToggle('tr_screenUsed')}
           </div>
         </div>
 

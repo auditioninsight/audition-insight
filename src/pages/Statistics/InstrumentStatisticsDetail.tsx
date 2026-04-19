@@ -40,17 +40,18 @@ const InstrumentStatisticsDetail: React.FC = () => {
     const agg = {
       // Organization
       punctuality: { sum: 0 },
-      scheduleDistribution: { sum: 0 },
+      timeSchedulesAssigned: { yes: 0, no: 0 },
+      scheduleDistributionType: {} as Record<string, number>,
       invitationReceived: { yes: 0, no: 0 },
       invitationTiming: {} as Record<string, number>,
       
       // Treatment
       respect: { sum: 0 },
       atmosphere: { sum: 0 },
+      supportStaffPresent: { yes: 0, no: 0 },
       
       // Transparency
       communicationOfResults: { sum: 0 },
-      tr_screenUsed: { yes: 0, no: 0 },
       
       // Feedback
       feedbackGiven: { yes: 0, no: 0 },
@@ -73,7 +74,16 @@ const InstrumentStatisticsDetail: React.FC = () => {
       if (rev.awarded === 'no') noCount++;
 
       agg.punctuality.sum += rev.organization?.punctuality || 0;
-      agg.scheduleDistribution.sum += rev.organization?.scheduleDistribution || 0;
+      
+      if (rev.organization?.timeSchedulesAssigned !== undefined) {
+        if (rev.organization.timeSchedulesAssigned) agg.timeSchedulesAssigned.yes++;
+        else agg.timeSchedulesAssigned.no++;
+        
+        if (rev.organization.scheduleDistributionType) {
+          agg.scheduleDistributionType[rev.organization.scheduleDistributionType] = 
+            (agg.scheduleDistributionType[rev.organization.scheduleDistributionType] || 0) + 1;
+        }
+      }
       
       if (rev.organization?.invitationReceived !== undefined) {
         if (rev.organization.invitationReceived) agg.invitationReceived.yes++;
@@ -86,12 +96,13 @@ const InstrumentStatisticsDetail: React.FC = () => {
 
       agg.respect.sum += rev.treatment?.respect || 0;
       agg.atmosphere.sum += rev.treatment?.atmosphere || 0;
+      
+      if (rev.treatment?.supportStaffPresent !== undefined) {
+        if (rev.treatment.supportStaffPresent) agg.supportStaffPresent.yes++;
+        else agg.supportStaffPresent.no++;
+      }
 
       agg.communicationOfResults.sum += rev.transparency?.communicationOfResults || 0;
-      if (rev.transparency?.screenUsed !== undefined) {
-        if (rev.transparency.screenUsed) agg.tr_screenUsed.yes++;
-        else agg.tr_screenUsed.no++;
-      }
 
       if (rev.feedback?.feedbackGiven !== undefined) {
         if (rev.feedback.feedbackGiven) {
@@ -274,7 +285,10 @@ const InstrumentStatisticsDetail: React.FC = () => {
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Organization</h4>
               {renderBar(stats.detailed?.punctuality?.sum ?? 0, stats.count, 'Punctuality')}
-              {renderBar(stats.detailed?.scheduleDistribution?.sum ?? 0, stats.count, 'Schedule Distribution')}
+              <div style={{ marginTop: 'var(--space-4)' }}>
+                {renderPercentageBar(stats.detailed?.timeSchedulesAssigned?.yes ?? 0, stats.detailed?.timeSchedulesAssigned?.no ?? 0, 'Time Schedules Assigned')}
+                {renderBreakdown(stats.detailed?.scheduleDistributionType ?? {}, 'Schedule Distribution')}
+              </div>
               <div style={{ marginTop: 'var(--space-4)' }}>
                 {renderPercentageBar(stats.detailed?.invitationReceived?.yes ?? 0, stats.detailed?.invitationReceived?.no ?? 0, 'Invitation Rate')}
                 {renderBreakdown(stats.detailed?.invitationTiming ?? {}, 'Invitation Timing')}
@@ -284,6 +298,7 @@ const InstrumentStatisticsDetail: React.FC = () => {
             {/* Treatment */}
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Treatment</h4>
+              {renderPercentageBar(stats.detailed?.supportStaffPresent?.yes ?? 0, stats.detailed?.supportStaffPresent?.no ?? 0, 'Support Staff Provided')}
               {renderBar(stats.detailed?.respect?.sum ?? 0, stats.count, 'Respect')}
               {renderBar(stats.detailed?.atmosphere?.sum ?? 0, stats.count, 'Atmosphere')}
             </div>
@@ -292,9 +307,6 @@ const InstrumentStatisticsDetail: React.FC = () => {
             <div className="glass-panel" style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-lg)' }}>
               <h4 style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-color)', color: 'var(--accent-blue)' }}>Transparency</h4>
               {renderBar(stats.detailed?.communicationOfResults?.sum ?? 0, stats.count, 'Communication of Results')}
-              <div style={{ marginTop: 'var(--space-4)' }}>
-                {renderPercentageBar(stats.detailed?.tr_screenUsed?.yes ?? 0, stats.detailed?.tr_screenUsed?.no ?? 0, 'Blind Audition (Screen)')}
-              </div>
             </div>
 
             {/* Logistics */}

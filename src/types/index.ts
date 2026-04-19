@@ -13,17 +13,20 @@ export interface AuditionReview {
   
   organization: {
     punctuality: number;
-    scheduleDistribution: number;
+    scheduleDistribution?: number; // legacy
+    timeSchedulesAssigned?: boolean;
+    scheduleDistributionType?: string;
     invitationReceived: boolean;
     invitationTiming?: string;
   };
   treatment: {
     respect: number;
     atmosphere: number;
+    supportStaffPresent?: boolean;
   };
   transparency: {
     communicationOfResults: number;
-    screenUsed: boolean;
+    screenUsed?: boolean; // legacy
   };
   feedback: {
     feedbackGiven: boolean;
