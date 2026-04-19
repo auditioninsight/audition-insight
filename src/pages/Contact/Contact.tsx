@@ -17,7 +17,7 @@ const Contact: React.FC = () => {
 
     try {
       // Async POST target to FormSubmit AJAX endpoint mapping to the target email
-      const response = await fetch('https://formsubmit.co/ajax/29969c5194778dea0738fef5d159a6a4', {
+      const response = await fetch('https://formsubmit.co/ajax/auditioninsightapp@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
