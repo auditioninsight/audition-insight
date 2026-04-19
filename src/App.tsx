@@ -27,6 +27,7 @@ import InstrumentStatisticsDetail from './pages/Statistics/InstrumentStatisticsD
 
 import Profile from './pages/Profile/Profile';
 import Contact from './pages/Contact/Contact';
+import CalendarPage from './pages/Calendar/CalendarPage';
 
 import AdminPanel from './pages/Admin/AdminPanel';
 
@@ -95,6 +96,13 @@ const AppRoutes = () => {
         <Route path="/contact" element={
           <ProtectedRoute>
             <Contact />
+          </ProtectedRoute>
+        } />
+
+        {/* Calendar (Protected) */}
+        <Route path="/calendar" element={
+          <ProtectedRoute>
+            <CalendarPage />
           </ProtectedRoute>
         } />
 

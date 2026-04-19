@@ -89,10 +89,15 @@
 }
 
 .sidebar-footer {
-  margin-top: auto;
-  padding-top: var(--space-6);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--border-color);
 }
+
+.sidebar-calendar-wrapper {
+  margin-top: auto;
+}
+
 
 .logout-btn {
   width: 100%;

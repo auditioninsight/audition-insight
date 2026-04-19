@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Map, BarChart2, LogOut, Shield, User, Mail } from 'lucide-react';
+import { Map, BarChart2, LogOut, Shield, User, Mail, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
@@ -45,6 +45,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, isOpen, onClose }) => {
         >
           <User className="nav-icon" size={20} />
           <span>Profile</span>
+        </NavLink>
+        
+        <NavLink 
+          to="/calendar" 
+          onClick={onClose}
+          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+        >
+          <Calendar className="nav-icon" size={20} />
+          <span>Calendar</span>
         </NavLink>
         
         <NavLink 

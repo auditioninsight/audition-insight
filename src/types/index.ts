@@ -49,3 +49,12 @@ export interface AppNotification {
   read: boolean;
   created_at: string;
 }
+
+export interface PersonalAudition {
+  id: string;
+  user_id: string;
+  date: string;
+  title: string;
+  orchestra: string;
+  created_at: string;
+}

@@ -44,7 +44,7 @@
 }
 
 .hamburger-btn {
-  display: none;
+  display: none !important;
   margin-right: var(--space-4);
 }
 
@@ -102,7 +102,7 @@
     height: 70px;
   }
   .hamburger-btn {
-    display: flex;
+    display: flex !important;
   }
   .user-info {
     display: none;
